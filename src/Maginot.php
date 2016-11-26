@@ -1,4 +1,5 @@
 <?php
+declare(strict_types = 1);
 
 namespace Novia713\Maginot;
 
@@ -6,6 +7,9 @@ use Symfony\Component\Filesystem\Exception\IOException;
 
 /**
  * Class Maginot
+ * Maginot is a php class for managing lines into php files
+ * WARNING: not intended for files simultaneously managed by several people
+ *
  * @package Novia713\Maginot
  */
 class Maginot
@@ -21,42 +25,6 @@ class Maginot
         }
 
     /**
-     * @param $line
-     * @param $file
-     * @return bool|\Exception|IOException
-     */
-    public function appendLine($line, $file)
-    {
-        try {
-            $this->fs->dumpFile(
-                    $file,
-                    file_get_contents($file) . PHP_EOL .$line
-                );
-            return true;
-        } catch (IOException $e) {
-            return $e;
-        }
-    }
-
-    /**
-     * @param $line
-     * @param $file
-     * @return bool|\Exception|IOException
-     */
-    public function prependLine($line, $file)
-    {
-        try {
-            $this->fs->dumpFile(
-                $file,
-                $line . PHP_EOL . file_get_contents($file)
-            );
-            return true;
-        } catch (IOException $e) {
-            return $e;
-        }
-    }
-
-    /**
      * This comments out all the ocurrences
      * @param $line
      * @param $file
@@ -70,13 +38,52 @@ class Maginot
             $lines = $this->getLines($file);
             foreach ($lines as $fileLine) {
                 if ($this->lineMatch($line, $fileLine)) {
-                    if ($replacedLine =
-                            str_replace($line, '//' . $line, $fileLine)) {
-                        $tmpFile[] = $replacedLine;
-                        $i++;
-                    } else {
-                        throw new IOException("Can't comment the line!");
-                    }
+                    $tmpFile[] = '//' . $line . PHP_EOL;
+                    $i++;
+                } else {
+                    $tmpFile[] = $fileLine;
+                }
+            }
+            if ($i > 0) {
+                $this->fs->dumpFile(
+                    $file,
+                    implode("", $tmpFile)
+                );
+                return $i;
+            } else {
+                return null;
+            }
+        } catch (IOException $e) {
+            return $e->getMessage();
+        }
+    }
+
+    /**
+     * This uncomments out all the ocurrences
+     * @param $line - Provide the line uncommented
+     * @param $file
+     * @return int|null|string - Number of uncommentations
+     */
+    public function unCommentLine($line, $file)
+    {
+        $i = 0;
+        $tmpFile = [];
+        try {
+            $lines = $this->getLines($file);
+            foreach ($lines as $fileLine) {
+                if (
+                    $this->lineMatch(
+                        "//" . $line,
+                        $fileLine
+                    )
+                    ||
+                    $this->lineMatch(
+                        "#" . $line,
+                        $fileLine
+                    )
+                ) {
+                    $tmpFile[] = $line . PHP_EOL;
+                    $i++;
                 } else {
                     $tmpFile[] = $fileLine;
                 }
@@ -122,6 +129,7 @@ class Maginot
     }
 
     /**
+     * Gets first line in file
      * @param $file
      * @return mixed
      */
@@ -133,6 +141,30 @@ class Maginot
                     $file
                 )[0]
             );
+    }
+
+    /**
+     * Sets first line in file
+     * @param $lile
+     * @param $file
+     * @return mixed
+     */
+    public function setFirstLine($line, $file)
+    {
+        $newFile = [];
+        $lines = $this->getLines($file);
+        $newFile = array_merge([$line . PHP_EOL], $lines);
+
+
+        try {
+            $this->fs->dumpFile(
+                $file,
+                implode("", $newFile)
+            );
+            return true;
+        } catch (IOException $e) {
+            return $e->getMessage();
+        }
     }
 
     /**
@@ -150,6 +182,30 @@ class Maginot
                     count($lines) - 1
                 )]
             );
+    }
+
+    /**
+     * Sets last line in file
+     * @param $lile
+     * @param $file
+     * @return mixed
+     */
+    public function setLastLine($line, $file)
+    {
+        $newFile = [];
+        $lines = $this->getLines($file);
+        $newFile = array_merge($lines, [$line . PHP_EOL]);
+
+
+        try {
+            $this->fs->dumpFile(
+                $file,
+                implode("", $newFile)
+            );
+            return true;
+        } catch (IOException $e) {
+            return $e->getMessage();
+        }
     }
 
     /**
@@ -181,10 +237,6 @@ class Maginot
         return (
             strpos($fileLine, $line) !== false
             &&
-            !(substr($fileLine, 0, 2) === "//")
-            &&
-            !(substr($fileLine, 0, 1) === "#")
-            &&
             (strlen($line) == strlen($this->deleteCarriageReturn($fileLine)))) ?
                 true:
                 false;
@@ -204,8 +256,9 @@ class Maginot
     }
 
     /**
+     * Opens the file and execute file() on it
      * @param $file
-     * @return array|string
+     * @return array|\Exception
      */
     private function getLines($file)
     {
