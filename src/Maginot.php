@@ -4,6 +4,10 @@ namespace Novia713\Maginot;
 
 use Symfony\Component\Filesystem\Exception\IOException;
 
+/**
+ * Class Maginot
+ * @package Novia713\Maginot
+ */
 class Maginot
 {
     private $fs;
@@ -14,8 +18,6 @@ class Maginot
         public function __construct()
         {
             $this->fs = new \Symfony\Component\Filesystem\Filesystem();
-            //@TODO:
-            //$fs->exists('/tmp/photos');
         }
 
     /**
@@ -65,7 +67,7 @@ class Maginot
         $i = 0;
         $tmpFile = [];
         try {
-            $lines = getLines($file);
+            $lines = $this->getLines($file);
             foreach ($lines as $fileLine) {
                 if ($this->lineMatch($line, $fileLine)) {
                     if ($replacedLine =
@@ -201,6 +203,10 @@ class Maginot
         );
     }
 
+    /**
+     * @param $file
+     * @return array|string
+     */
     private function getLines($file)
     {
         if (!$this->fs->exists($file)) {
