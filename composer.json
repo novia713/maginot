@@ -1,0 +1,26 @@
+{
+    "name": "novia713/maginot",
+    "description": "Maginot is a php tool class for managing lines into php files",
+    "type": "project",
+    "require": {
+        "symfony/filesystem": "^2.3",
+        "raveren/kint": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Novia713\\Maginot\\": "src/"
+        }
+    },
+    "require-dev": {
+        "novia713/phog": "dev-master",
+        "phpdocumentor/phpdocumentor": "^2.9"
+    },
+    "license": "GPL-2",
+    "authors": [
+        {
+            "name": "leandro",
+            "email": "leandro@leandro.org"
+        }
+    ],
+    "minimum-stability": "dev"
+}
