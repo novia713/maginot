@@ -243,6 +243,7 @@ class Maginot
     }
 
     /**
+     * Private function for return carriage removal
      * @param $string
      * @return mixed
      */
