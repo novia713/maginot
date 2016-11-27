@@ -15,10 +15,14 @@ $maginot = new Maginot();
 then you can do the following things:
 
  📍 _comment a line into a file_
+ 
+ *WARNING: This comments out all the ocurrences*
  ```php
  $maginot->commentLine("this is an example line. can be whatever", $myFile);
  ```
  📍 _uncomment a line into a file_
+ 
+ *WARNING: This uncomments out all the ocurrences*
  ```php
 $maginot->unCommentLine("this is an example line. can be whatever", $myFile));
  ```
