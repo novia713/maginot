@@ -22,8 +22,5 @@
             "email": "leandro@leandro.org"
         }
     ],
-    "minimum-stability": "dev",
-    "autoload": {
-        "psr-4": {"Novia713\\Maginot\\": "src"}
-    }
+    "minimum-stability": "dev"
 }
