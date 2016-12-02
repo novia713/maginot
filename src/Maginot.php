@@ -1,5 +1,5 @@
 <?php
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Novia713\Maginot;
 
@@ -145,7 +145,7 @@ class Maginot
 
     /**
      * Sets first line in file
-     * @param $lile
+     * @param $line
      * @param $file
      * @return mixed
      */
@@ -186,7 +186,7 @@ class Maginot
 
     /**
      * Sets last line in file
-     * @param $lile
+     * @param $line
      * @param $file
      * @return mixed
      */
@@ -212,6 +212,7 @@ class Maginot
      * Gets line by number
      * First line is #1, not #0
      * @param $file
+     * @param $n
      * @return integer
      */
     public function getNLine($file, $n = 1)
