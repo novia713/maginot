@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Novia713\Maginot;
 
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Exception\IOException;
 
 /**
@@ -21,7 +22,9 @@ class Maginot
          */
         public function __construct()
         {
-            $this->fs = new \Symfony\Component\Filesystem\Filesystem();
+            if (!$this->fs) {
+                $this->fs = new \Symfony\Component\Filesystem\Filesystem();
+            }
         }
 
     /**
@@ -82,7 +85,7 @@ class Maginot
                         $fileLine
                     )
                 ) {
-                    $tmpFile[] = $line . PHP_EOL;
+                    $tmpFile[] = trim($line) . PHP_EOL;
                     $i++;
                 } else {
                     $tmpFile[] = $fileLine;
@@ -167,6 +170,24 @@ class Maginot
         }
     }
 
+
+    public function deleteFirstLine($file)
+    {
+        $newFile = [];
+        $lines = $this->getLines($file);
+        $firstLine = array_shift($lines);
+
+        try {
+            $this->fs->dumpFile(
+                $file,
+                implode("", $lines)
+            );
+            return true;
+        } catch (IOException $e) {
+            return $e->getMessage();
+        }
+    }
+
     /**
      * @param $file
      * @return mixed
@@ -236,7 +257,7 @@ class Maginot
     private function lineMatch($line, $fileLine)
     {
         return (
-            strpos($fileLine, $line) !== false
+            strpos($fileLine, $line)
             &&
             (strlen($line) == strlen($this->deleteCarriageReturn($fileLine)))) ?
                 true:
