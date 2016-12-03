@@ -85,7 +85,7 @@ class Maginot
                         $fileLine
                     )
                 ) {
-                    $tmpFile[] = trim($line) . PHP_EOL;
+                    $tmpFile[] = $line . PHP_EOL;
                     $i++;
                 } else {
                     $tmpFile[] = $fileLine;
