@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Novia713\Maginot;
 
+
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Exception\IOException;
 
@@ -19,9 +20,23 @@ class Maginot
 
         /**
          * Maginot constructor.
+         * @param $logFile - must be an absolute path
          */
-        public function __construct()
+        public function __construct($logFile = null)
         {
+            if ($logFile) {
+                $this->logger = new \Monolog\Logger('Maginot');
+                try {
+                    $this->logger->pushHandler(
+                        new \Monolog\Handler\StreamHandler(
+                            $logFile,
+                            \Monolog\Logger::DEBUG
+                        )
+                    );
+                } catch (IOException $e) {
+                    return $e->getMessage();
+                }
+            }
             if (!$this->fs) {
                 $this->fs = new \Symfony\Component\Filesystem\Filesystem();
             }
@@ -52,6 +67,7 @@ class Maginot
                     $file,
                     implode("", $tmpFile)
                 );
+                $this->logger->addInfo("line $line commented in file $file $i times");
                 return $i;
             } else {
                 return null;
@@ -62,8 +78,8 @@ class Maginot
     }
 
     /**
-     * This uncomments out all the ocurrences
-     * @param $line - Provide the line uncommented
+     * This uncomments out all the occurrences
+     * @param $line - Provide the line commented, as is
      * @param $file
      * @return int|null|string - Number of uncommentations
      */
@@ -76,16 +92,13 @@ class Maginot
             foreach ($lines as $fileLine) {
                 if (
                     $this->lineMatch(
-                        "//" . $line,
-                        $fileLine
-                    )
-                    ||
-                    $this->lineMatch(
-                        "#" . $line,
+                        $line,
                         $fileLine
                     )
                 ) {
-                    $tmpFile[] = $line . PHP_EOL;
+                    $commented_line = str_replace("//", "", $line);
+                    $commented_line = str_replace("#", "", $commented_line);
+                    $tmpFile[] = $commented_line . PHP_EOL;
                     $i++;
                 } else {
                     $tmpFile[] = $fileLine;
@@ -96,6 +109,7 @@ class Maginot
                     $file,
                     implode("", $tmpFile)
                 );
+                $this->logger->addInfo("line $line uncommented in file $file $i times");
                 return $i;
             } else {
                 return null;
@@ -164,6 +178,7 @@ class Maginot
                 $file,
                 implode("", $newFile)
             );
+            $this->logger->addInfo("line $line set as first line in file $file");
             return true;
         } catch (IOException $e) {
             return $e->getMessage();
@@ -182,6 +197,7 @@ class Maginot
                 $file,
                 implode("", $lines)
             );
+            $this->logger->addInfo("deleted first line in $file");
             return true;
         } catch (IOException $e) {
             return $e->getMessage();
@@ -223,6 +239,7 @@ class Maginot
                 $file,
                 implode("", $newFile)
             );
+            $this->logger->addInfo("set line $line as last line in file $file");
             return true;
         } catch (IOException $e) {
             return $e->getMessage();
@@ -257,7 +274,7 @@ class Maginot
     private function lineMatch($line, $fileLine)
     {
         return (
-            strpos($fileLine, $line)
+            (strpos($fileLine, $line) !== false)
             &&
             (strlen($line) == strlen($this->deleteCarriageReturn($fileLine)))) ?
                 true:
