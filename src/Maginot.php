@@ -18,29 +18,29 @@ class Maginot
 {
     private $fs;
 
-        /**
-         * Maginot constructor.
-         * @param $logFile - must be an absolute path
-         */
-        public function __construct($logFile = null)
-        {
-            if ($logFile) {
-                $this->logger = new \Monolog\Logger('Maginot');
-                try {
-                    $this->logger->pushHandler(
-                        new \Monolog\Handler\StreamHandler(
-                            $logFile,
-                            \Monolog\Logger::DEBUG
-                        )
-                    );
-                } catch (IOException $e) {
-                    return $e->getMessage();
-                }
-            }
-            if (!$this->fs) {
-                $this->fs = new \Symfony\Component\Filesystem\Filesystem();
+    /**
+     * Maginot constructor.
+     * @param $logFile - must be an absolute path
+     */
+    public function __construct($logFile = null)
+    {
+        if ($logFile) {
+            $this->logger = new \Monolog\Logger('Maginot');
+            try {
+                $this->logger->pushHandler(
+                    new \Monolog\Handler\StreamHandler(
+                        $logFile,
+                        \Monolog\Logger::DEBUG
+                    )
+                );
+            } catch (IOException $e) {
+                return $e->getMessage();
             }
         }
+        if (!$this->fs) {
+            $this->fs = new \Symfony\Component\Filesystem\Filesystem();
+        }
+    }
 
     /**
      * This comments out all the ocurrences
@@ -67,7 +67,9 @@ class Maginot
                     $file,
                     implode("", $tmpFile)
                 );
-                $this->logger->addInfo("line $line commented in file $file $i times");
+                if ($this->logger) {
+                    $this->logger->addInfo("line $line commented in file $file $i times");
+                }
                 return $i;
             } else {
                 return null;
@@ -91,10 +93,10 @@ class Maginot
             $lines = $this->getLines($file);
             foreach ($lines as $fileLine) {
                 if (
-                    $this->lineMatch(
-                        $line,
-                        $fileLine
-                    )
+                $this->lineMatch(
+                    $line,
+                    $fileLine
+                )
                 ) {
                     $commented_line = str_replace("//", "", $line);
                     $commented_line = str_replace("#", "", $commented_line);
@@ -109,7 +111,9 @@ class Maginot
                     $file,
                     implode("", $tmpFile)
                 );
-                $this->logger->addInfo("line $line uncommented in file $file $i times");
+                if ($this->logger) {
+                    $this->logger->addInfo("line $line uncommented in file $file $i times");
+                }
                 return $i;
             } else {
                 return null;
@@ -178,7 +182,9 @@ class Maginot
                 $file,
                 implode("", $newFile)
             );
-            $this->logger->addInfo("line $line set as first line in file $file");
+            if ($this->logger) {
+                $this->logger->addInfo("line $line set as first line in file $file");
+            }
             return true;
         } catch (IOException $e) {
             return $e->getMessage();
@@ -197,7 +203,9 @@ class Maginot
                 $file,
                 implode("", $lines)
             );
-            $this->logger->addInfo("deleted first line in $file");
+            if ($this->logger) {
+                $this->logger->addInfo("deleted first line in $file");
+            }
             return true;
         } catch (IOException $e) {
             return $e->getMessage();
@@ -239,7 +247,9 @@ class Maginot
                 $file,
                 implode("", $newFile)
             );
-            $this->logger->addInfo("set line $line as last line in file $file");
+            if ($this->logger) {
+                $this->logger->addInfo("set line $line as last line in file $file");
+            }
             return true;
         } catch (IOException $e) {
             return $e->getMessage();
@@ -259,11 +269,11 @@ class Maginot
             $file
         );
         return (int)
-            $this->deleteCarriageReturn(
-                $lines[//@TODO: $n is integer and > 0
-                (int)($n - 1)
-                ]
-            );
+        $this->deleteCarriageReturn(
+            $lines[//@TODO: $n is integer and > 0
+            (int)($n - 1)
+            ]
+        );
     }
 
     /**
@@ -277,8 +287,8 @@ class Maginot
             (strpos($fileLine, $line) !== false)
             &&
             (strlen($line) == strlen($this->deleteCarriageReturn($fileLine)))) ?
-                true:
-                false;
+            true:
+            false;
     }
 
     /**
