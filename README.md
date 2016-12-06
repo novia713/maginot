@@ -20,7 +20,7 @@ then you can do the following things:
  ```php
  $maginot->commentLine("this is an example line. can be whatever", $myFile);
  ```
- 📍 _uncomment a line into a file_
+ 📍 _uncomment a line into a file_  [provide the actual line, including the comment symbol]
  
  *WARNING: This uncomments out all the ocurrences*
  ```php
